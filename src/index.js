@@ -12,30 +12,30 @@ var batch = require('./batch'),
     Parse = require('parse/node').Parse,
     httpRequest = require('./httpRequest');
 
-import PromiseRouter           from './PromiseRouter';
-import { GridStoreAdapter }    from './Adapters/Files/GridStoreAdapter';
-import { S3Adapter }           from './Adapters/Files/S3Adapter';
-import { FilesController }     from './Controllers/FilesController';
-
 import ParsePushAdapter        from './Adapters/Push/ParsePushAdapter';
-import { PushController }      from './Controllers/PushController';
-
-import { ClassesRouter }       from './Routers/ClassesRouter';
-import { InstallationsRouter } from './Routers/InstallationsRouter';
-import { UsersRouter }         from './Routers/UsersRouter';
-import { SessionsRouter }      from './Routers/SessionsRouter';
-import { RolesRouter }         from './Routers/RolesRouter';
+//import passwordReset           from './passwordReset';
+import PromiseRouter           from './PromiseRouter';
+import SimpleMailgunAdapter    from './Adapters/Email/SimpleMailgunAdapter';
+import verifyEmail             from './verifyEmail';
 import { AnalyticsRouter }     from './Routers/AnalyticsRouter';
-import { FunctionsRouter }     from './Routers/FunctionsRouter';
-import { SchemasRouter }       from './Routers/SchemasRouter';
-import { IAPValidationRouter } from './Routers/IAPValidationRouter';
-import { PushRouter }          from './Routers/PushRouter';
-import { FilesRouter }         from './Routers/FilesRouter';
-import { LogsRouter }          from './Routers/LogsRouter';
-
-import { loadAdapter }         from './Adapters/AdapterLoader';
+import { ClassesRouter }       from './Routers/ClassesRouter';
 import { FileLoggerAdapter }   from './Adapters/Logger/FileLoggerAdapter';
+import { FilesController }     from './Controllers/FilesController';
+import { FilesRouter }         from './Routers/FilesRouter';
+import { FunctionsRouter }     from './Routers/FunctionsRouter';
+import { GridStoreAdapter }    from './Adapters/Files/GridStoreAdapter';
+import { IAPValidationRouter } from './Routers/IAPValidationRouter';
+import { InstallationsRouter } from './Routers/InstallationsRouter';
+import { loadAdapter }         from './Adapters/AdapterLoader';
 import { LoggerController }    from './Controllers/LoggerController';
+import { LogsRouter }          from './Routers/LogsRouter';
+import { PushController }      from './Controllers/PushController';
+import { PushRouter }          from './Routers/PushRouter';
+import { RolesRouter }         from './Routers/RolesRouter';
+import { S3Adapter }           from './Adapters/Files/S3Adapter';
+import { SchemasRouter }       from './Routers/SchemasRouter';
+import { SessionsRouter }      from './Routers/SessionsRouter';
+import { UsersRouter }         from './Routers/UsersRouter';
 
 import requiredParameter       from './requiredParameter';
 // Mutate the Parse object to add the Cloud Code handlers
@@ -68,6 +68,7 @@ addParseCloud();
 function ParseServer({
   appId = requiredParameter('You must provide an appId!'),
   masterKey = requiredParameter('You must provide a masterKey!'),
+  appName,
   databaseAdapter,
   filesAdapter,
   push,
@@ -84,7 +85,9 @@ function ParseServer({
   enableAnonymousUsers = true,
   oauth = {},
   serverURL = requiredParameter('You must provide a serverURL!'),
-  maxUploadSize = '20mb'
+  maxUploadSize = '20mb',
+  verifyUserEmails = false,
+  emailAdapter,
 }) {
   if (databaseAdapter) {
     DatabaseAdapter.setAdapter(databaseAdapter);
@@ -104,7 +107,6 @@ function ParseServer({
     }
   }
 
-
   const filesControllerAdapter = loadAdapter(filesAdapter, GridStoreAdapter);
   const pushControllerAdapter = loadAdapter(push, ParsePushAdapter);
   const loggerControllerAdapter = loadAdapter(loggerAdapter, FileLoggerAdapter);
@@ -114,6 +116,18 @@ function ParseServer({
   const filesController = new FilesController(filesControllerAdapter);
   const pushController = new PushController(pushControllerAdapter);
   const loggerController = new LoggerController(loggerControllerAdapter);
+
+  if (verifyUserEmails) {
+    if (typeof appName !== 'string') {
+      throw 'An app name is required when using email verification.';
+    }
+    if (!emailAdapter) {
+      throw 'User email verification was enabled, but no email adapter was provided';
+    }
+    if (typeof emailAdapter.sendVerificationEmail !== 'function') {
+      throw 'Invalid email adapter: no sendVerificationEmail() function was provided';
+    }
+  }
 
   cache.apps[appId] = {
     masterKey: masterKey,
@@ -129,9 +143,12 @@ function ParseServer({
     loggerController: loggerController,
     enableAnonymousUsers: enableAnonymousUsers,
     oauth: oauth,
-};
+    verifyUserEmails: verifyUserEmails,
+    emailAdapter: emailAdapter,
+    appName: appName,
+  };
 
-  // To maintain compatibility. TODO: Remove in v2.1
+  // To maintain compatibility. TODO: Remove in some version that breaks backwards compatability
   if (process.env.FACEBOOK_APP_ID) {
     cache.apps[appId]['facebookAppIds'].push(process.env.FACEBOOK_APP_ID);
   }
@@ -148,6 +165,12 @@ function ParseServer({
   api.use('/', new FilesRouter().getExpressRouter({
     maxUploadSize: maxUploadSize
   }));
+
+  if (process.env.PARSE_EXPERIMENTAL_EMAIL_VERIFICATION_ENABLED || process.env.TESTING == 1) {
+    //api.use('/request_password_reset', passwordReset.reset(appName, appId));
+    //api.get('/password_reset_success', passwordReset.success);
+    api.get('/verify_email', verifyEmail(appId, serverURL));
+  }
 
   // TODO: separate this from the regular ParseServer object
   if (process.env.TESTING == 1) {
@@ -244,5 +267,6 @@ function getClassName(parseClass) {
 
 module.exports = {
   ParseServer: ParseServer,
-  S3Adapter: S3Adapter
+  S3Adapter: S3Adapter,
+  SimpleMailgunAdapter: SimpleMailgunAdapter,
 };
