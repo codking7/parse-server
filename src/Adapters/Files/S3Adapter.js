@@ -20,7 +20,9 @@ export class S3Adapter extends FilesAdapter {
       directAccess = false } = {}
   ) {
     super();
-
+    if (!accessKey || !secretKey) {
+      throw "S3Adapter requires accessKey, secretKey";
+    }
     this._region = region;
     this._bucket = bucket;
     this._bucketPrefix = bucketPrefix;

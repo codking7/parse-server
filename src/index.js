@@ -16,7 +16,6 @@ import ParsePushAdapter        from './Adapters/Push/ParsePushAdapter';
 //import passwordReset           from './passwordReset';
 import PromiseRouter           from './PromiseRouter';
 import verifyEmail             from './verifyEmail';
-import loadAdapter             from './Adapters/loadAdapter';
 import { AnalyticsRouter }     from './Routers/AnalyticsRouter';
 import { ClassesRouter }       from './Routers/ClassesRouter';
 import { FileLoggerAdapter }   from './Adapters/Logger/FileLoggerAdapter';
@@ -26,7 +25,7 @@ import { FunctionsRouter }     from './Routers/FunctionsRouter';
 import { GridStoreAdapter }    from './Adapters/Files/GridStoreAdapter';
 import { IAPValidationRouter } from './Routers/IAPValidationRouter';
 import { InstallationsRouter } from './Routers/InstallationsRouter';
-import AdapterLoader           from './Adapters/AdapterLoader';
+import { loadAdapter }         from './Adapters/AdapterLoader';
 import { LoggerController }    from './Controllers/LoggerController';
 import { LogsRouter }          from './Routers/LogsRouter';
 import { PushController }      from './Controllers/PushController';
@@ -123,9 +122,9 @@ function ParseServer({
 
   // We pass the options and the base class for the adatper,
   // Note that passing an instance would work too
-  const filesController = new FilesController(AdapterLoader.loadAdapter(filesAdapter, GridStoreAdapter));
-  const pushController = new PushController(AdapterLoader.loadAdapter(push, ParsePushAdapter));
-  const loggerController = new LoggerController(AdapterLoader.loadAdapter(loggerAdapter, FileLoggerAdapter));
+  const filesController = new FilesController(loadAdapter(filesAdapter, GridStoreAdapter));
+  const pushController = new PushController(loadAdapter(push, ParsePushAdapter));
+  const loggerController = new LoggerController(loadAdapter(loggerAdapter, FileLoggerAdapter));
 
   cache.apps[appId] = {
     masterKey: masterKey,
