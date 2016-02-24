@@ -24,7 +24,7 @@ describe('Parse.GeoPoint testing', () => {
         });
       }
     });
-  });
+  }, 60000);
 
   it('geo point exception two fields', (done) => {
     var point = new Parse.GeoPoint(20, 20);
@@ -37,7 +37,7 @@ describe('Parse.GeoPoint testing', () => {
       equal(err.code, Parse.Error.INCORRECT_TYPE);
       done();
     });
-  });
+  },60000);
 
 //
 // This test is disabled, since it's extremely flaky on Travis-CI.
@@ -92,7 +92,7 @@ describe('Parse.GeoPoint testing', () => {
       console.log(err);
       fail();
     });
-  });
+  },60000);
 
   it('geo max distance medium', (done) => {
     var objects = [];
@@ -116,7 +116,7 @@ describe('Parse.GeoPoint testing', () => {
         }
       });
     });
-  });
+  }, 60000);
 
   it('geo max distance small', (done) => {
     var objects = [];
@@ -139,7 +139,7 @@ describe('Parse.GeoPoint testing', () => {
         }
       });
     });
-  });
+  }, 60000);
 
   var makeSomeGeoPoints = function(callback) {
     var sacramento = new TestObject();
@@ -169,7 +169,7 @@ describe('Parse.GeoPoint testing', () => {
         }
       });
     });
-  });
+  }, 60000);
 
   it('geo max distance in km california', (done) => {
     makeSomeGeoPoints(function(list) {
@@ -185,7 +185,7 @@ describe('Parse.GeoPoint testing', () => {
         }
       });
     });
-  });
+  }, 60000);
 
   it('geo max distance in km bay area', (done) => {
     makeSomeGeoPoints(function(list) {
@@ -200,7 +200,7 @@ describe('Parse.GeoPoint testing', () => {
         }
       });
     });
-  });
+  }, 60000);
 
   it('geo max distance in km mid peninsula', (done) => {
     makeSomeGeoPoints(function(list) {
@@ -214,7 +214,7 @@ describe('Parse.GeoPoint testing', () => {
         }
       });
     });
-  });
+  }, 60000);
 
   it('geo max distance in miles everywhere', (done) => {
     makeSomeGeoPoints(function(list) {
@@ -228,7 +228,7 @@ describe('Parse.GeoPoint testing', () => {
         }
       });
     });
-  });
+  }, 60000);
 
   it('geo max distance in miles california', (done) => {
     makeSomeGeoPoints(function(list) {
@@ -244,7 +244,7 @@ describe('Parse.GeoPoint testing', () => {
         }
       });
     });
-  });
+  }, 60000);
 
   it('geo max distance in miles bay area', (done) => {
     makeSomeGeoPoints(function(list) {
@@ -259,7 +259,7 @@ describe('Parse.GeoPoint testing', () => {
         }
       });
     });
-  });
+  }, 60000);
 
   it('geo max distance in miles mid peninsula', (done) => {
     makeSomeGeoPoints(function(list) {
@@ -273,7 +273,7 @@ describe('Parse.GeoPoint testing', () => {
         }
       });
     });
-  });
+  }, 60000);
 
   it('works with geobox queries', (done) => {
     var inSF = new Parse.GeoPoint(37.75, -122.4);
@@ -290,7 +290,7 @@ describe('Parse.GeoPoint testing', () => {
       equal(results.length, 1);
       done();
     });
-  });
+  }, 60000);
 
   it('supports a sub-object with a geo point', done => {
     var point = new Parse.GeoPoint(44.0, -11.0);
@@ -311,7 +311,7 @@ describe('Parse.GeoPoint testing', () => {
         });
       }
     });
-  });
+  }, 60000);
 
   it('supports array of geo points', done => {
     var point1 = new Parse.GeoPoint(44.0, -11.0);
@@ -333,5 +333,5 @@ describe('Parse.GeoPoint testing', () => {
         });
       }
     });
-  });
+  }, 60000);
 });

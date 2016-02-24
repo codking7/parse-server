@@ -24,8 +24,8 @@ export class Config {
     this.facebookAppIds = cacheInfo.facebookAppIds;
     this.enableAnonymousUsers = cacheInfo.enableAnonymousUsers;
 
+    this.mailController = cacheInfo.mailController;
     this.verifyUserEmails = cacheInfo.verifyUserEmails;
-    this.emailAdapter = cacheInfo.emailAdapter;
     this.appName = cacheInfo.appName;
 
     this.database = DatabaseAdapter.getDatabaseConnection(applicationId);

@@ -49,7 +49,8 @@ describe('Parse.User testing', () => {
 
   it('sends verification email if email verification is enabled', done => {
     var emailAdapter = {
-      sendVerificationEmail: () => Promise.resolve()
+      sendVerificationEmail: () => Promise.resolve(),
+      sendMail: () => Promise.resolve()
     }
     setServerConfiguration({
       serverURL: 'http://localhost:8378/1',
@@ -87,7 +88,8 @@ describe('Parse.User testing', () => {
 
   it('does not send verification email if email verification is disabled', done => {
     var emailAdapter = {
-      sendVerificationEmail: () => Promise.resolve()
+      sendVerificationEmail: () => Promise.resolve(),
+      sendMail: () => Promise.resolve()
     }
     setServerConfiguration({
       serverURL: 'http://localhost:8378/1',
@@ -129,7 +131,8 @@ describe('Parse.User testing', () => {
         expect(options.appName).toEqual('emailing app');
         expect(options.user.get('email')).toEqual('user@parse.com');
         done();
-      }
+      },
+      sendMail: () => {}
     }
     setServerConfiguration({
       serverURL: 'http://localhost:8378/1',
@@ -173,7 +176,8 @@ describe('Parse.User testing', () => {
             done();
           });
         });
-      }
+      },
+      sendMail: () => {}
     }
     setServerConfiguration({
       serverURL: 'http://localhost:8378/1',
@@ -230,7 +234,8 @@ describe('Parse.User testing', () => {
             done();
           });
         });
-      }
+      },
+      sendMail: () => {}
     }
     setServerConfiguration({
       serverURL: 'http://localhost:8378/1',

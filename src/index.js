@@ -20,6 +20,7 @@ import { AnalyticsRouter }     from './Routers/AnalyticsRouter';
 import { ClassesRouter }       from './Routers/ClassesRouter';
 import { FileLoggerAdapter }   from './Adapters/Logger/FileLoggerAdapter';
 import { FilesController }     from './Controllers/FilesController';
+import { MailController }      from './Controllers/MailController';
 import { FilesRouter }         from './Routers/FilesRouter';
 import { FunctionsRouter }     from './Routers/FunctionsRouter';
 import { GridStoreAdapter }    from './Adapters/Files/GridStoreAdapter';
@@ -71,9 +72,6 @@ let validateEmailConfiguration = (verifyUserEmails, appName, emailAdapter) => {
     }
     if (!emailAdapter) {
       throw 'User email verification was enabled, but no email adapter was provided';
-    }
-    if (typeof emailAdapter.sendVerificationEmail !== 'function') {
-      throw 'Invalid email adapter: no sendVerificationEmail() function was provided';
     }
   }
 }
@@ -143,11 +141,10 @@ function ParseServer({
     appName: appName,
   };
 
-  if (verifyUserEmails && process.env.PARSE_EXPERIMENTAL_EMAIL_VERIFICATION_ENABLED || process.env.TESTING == 1) {
-    emailAdapter = loadAdapter(emailAdapter);
-    validateEmailConfiguration(verifyUserEmails, appName, emailAdapter);
+  if (verifyUserEmails && (process.env.PARSE_EXPERIMENTAL_EMAIL_VERIFICATION_ENABLED || process.env.TESTING == 1)) {
+    let mailController = new MailController(loadAdapter(emailAdapter));
+    cache.apps[appId].mailController = mailController;
     cache.apps[appId].verifyUserEmails = verifyUserEmails;
-    cache.apps[appId].emailAdapter = emailAdapter;
   }
 
   // To maintain compatibility. TODO: Remove in some version that breaks backwards compatability
