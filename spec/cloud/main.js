@@ -102,3 +102,28 @@ Parse.Cloud.define('requiredParameterCheck', function(req, res) {
 }, function(params) {
   return params.name;
 });
+
+
+Parse.Cloud.beforeSave("TESTMessage", function(request, response) {
+    if (!request.object.get("uniqueCode")) {
+        response.error('A Message must have a uniqueCode.');
+    } else {
+        var Message = Parse.Object.extend("Message");
+        var query = new Parse.Query(Message);
+        query.equalTo("uniqueCode", request.object.get("uniqueCode"));
+        query.find({
+            success: function(results) {
+                if (results.length > 0) {
+                  response.error("A Message with this uniqueCode already exists.");
+                } else {
+                   response.success();
+                }
+            },
+            error: function(error) {
+              console.error(error);
+                response.error("Error: " + error.code + " " + error.message);
+            }
+        });
+    }
+});
+
