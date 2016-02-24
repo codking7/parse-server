@@ -1,6 +1,7 @@
 import AdaptableController from './AdaptableController';
 import { MailAdapter } from '../Adapters/Email/MailAdapter';
 import { randomString } from '../cryptoUtils';
+import { inflate } from '../triggers';
 
 export class MailController extends AdaptableController {
   setEmailVerificationStatus(user, status) {
@@ -9,8 +10,15 @@ export class MailController extends AdaptableController {
     }
     user.emailVerified = status;
   }
-  sendVerificationEmail(options) { 
-    this.adapter.sendVerificationEmail(options);
+  sendVerificationEmail(user, config) {
+    const token = encodeURIComponent(user._email_verify_token);
+    const username = encodeURIComponent(user.username);
+    let link = `${config.mount}/verify_email?token=${token}&username=${username}`;
+    this.adapter.sendVerificationEmail({
+      appName: config.appName,
+      link: link,
+      user: inflate('_User', user),
+    });
   }
   sendMail(options) {
     this.adapter.sendMail(options);
